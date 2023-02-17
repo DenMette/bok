@@ -1,0 +1,37 @@
+name: Java CI with Maven Wrapper
+
+on:
+  push:
+    branches: [ "development" ]
+  pull_request:
+    branches: [ "development" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  JAVA_VERSION: '17'
+
+jobs:
+
+  build:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@3f07048e3d294f56e9b90ac5ea2c6f74e9ad0f98 # v3
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'liberica'
+          cache: 'maven'
+
+      - name: Build with Maven Wrapper
+        run: ./mvnw verify --file pom.xml
